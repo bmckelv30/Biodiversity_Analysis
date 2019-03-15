@@ -1,82 +1,77 @@
 function buildMetadata(sample) {
 
-  // @TODO: Complete the following function that builds the metadata panel
-  var url = `/metadata/${sample}`
-  // Use `d3.json` to fetch the metadata for a sample
-  d3.json(url).then((metadata) => {
-    // Use `.html("") to clear any existing metadata
-    // document.getElementById("sample-metadata").html("");
+  var url = `/metadata/${sample}`;
+  var sampleData = d3.select("#sample-metadata");
 
-    // Use `Object.entries` to add each key and value pair to the panel
-    // Hint: Inside the loop, you will need to use d3 to append new
-    // tags for each key-value in the metadata.
-    var keys = []
-    var values = []
-    Object.entries(metadata).forEach(([key,value]) => {
-      keys.push(key);
-      values.push(value);
+    d3.json(url).then((metadata) => {
+      var metadata = [metadata];
+      metadata.forEach((sampledata) =>{
+        sampleData.html("");
+        var row = sampleData.append("tr");
+        Object.entries(sampledata).forEach(([key,value]) => {
+          var cell = row.append("tr");
+          var display = cell.text(`${key}: ${value}`);
+          //   // BONUS: Build the Gauge Chart
+          //   // buildGauge(data.WFREQ); 
+        }); 
+      });
     });
-    var entry = "<row/>"
-    for (var y = 0; y<keys.length; y++) {
-      entry += `${keys[y]}: ${values[y]} <br/>`;
-    }
-    // Use d3 to select the panel with id of `#sample-metadata`
-    document.getElementById("sample-metadata").innerHTML = entry;
-  //   // BONUS: Build the Gauge Chart
-  //   // buildGauge(data.WFREQ);
-  });
-};
+  }
+
 
 function buildCharts(sample) {
-
-  // @TODO: Use `d3.json` to fetch the sample data for the plots
-  // var inputValue = selector.property("value", sample);
   var sampleUrl = `/samples/${sample}`
-  // Use `d3.json` to fetch the metadata for a sample
   d3.json(sampleUrl).then((data) => {
     console.log(data);
-  // Use `d3.json` to fetch the metadata for a sample
-  // @TODO: Build a Bubble Chart using the sample data
+    var sample_values = data.sample_values.slice(0,10);
+    var otu_ids = data.otu_ids.slice(0,10)
+    var otu_labels = data.otu_labels.slice(0,10)
+  // Bubble Chart using the sample data
     var trace1 = {
-      x: data.map(row => row.otu_ids),
-      y: data.map(row => row.sample_values),
+      x: otu_ids,
+      y: sample_values,
       mode: 'markers',
-      text: data.map(row => row.otu_labels),
+      text: otu_labels,
       marker: {
-        color: data.map(row => row.otu_ids),
-        size: data.map(row => row.sample_values)
+        color: [otu_ids],
+        size: sample_values
       }
     };
     var data = [trace1];
-    var BUB = document.getElementById("bubble");
-    // Plotly.plot(PIE, data, layout);
-    Plotly.newPlot(BUB, data);
-    // @TODO: Build a Pie Chart
-    data.sort(function(a, b) {
-      return parseFloat(b.sample_values) - parseFloat(a.sample_values);
-    });
-    // Slice the first 10 objects for plotting
-    data = data.slice(0, 10);
-    // Reverse the array due to Plotly's defaults
-    data = data.reverse();
-
-    var trace2 = {
-      values: data.map(row => row.sample_values),
-      labels: data.map(row => row.otu_ids),
-      hoverinfo: data.map(row => row.otu_labels),
-      type: "pie"
+    var layout = {
+      showlegend: false,
+      height: 400,
+      width: 1200
     };
-    var data = [trace2];
-    // var layout = {
-    //   height: 600,
-    //   width: 800
-    // };
+    var BUB = document.getElementById("bubble");
+    Plotly.newPlot(BUB, data, layout);
+
+    // Pie Chart
     // HINT: You will need to use slice() to grab the top 10 sample_values,
     // otu_ids, and labels (10 each).
-    var PIE = document.getElementById("pie");
-    // Plotly.plot(PIE, data, layout);
-    Plotly.newPlot(PIE, data);
 
+    // Figure out how to sort!
+    // data.sort(function(a, b) {
+    //   return parseFloat(b.sample_values) - parseFloat(a.sample_values);
+    // });
+    // // Slice the first 10 objects for plotting
+    // data = data.slice(0, 10);
+    // // Reverse the array due to Plotly's defaults
+    // data = data.reverse();
+
+    var trace2 = {
+      values: sample_values,
+      labels: otu_ids,
+      hoverinfo: otu_labels,
+      type: "pie"
+    };
+    var data2 = [trace2];
+    var layout2 = {
+      height: 500,
+      width: 500
+    };
+    var PIE = document.getElementById("pie");
+    Plotly.newPlot(PIE, data2, layout2);
   });
 }
 
