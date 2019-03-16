@@ -1,4 +1,4 @@
-from homework_15.app import db 
-print(db)
+from bellybutton.app import db 
+
 db.create_all()
  
