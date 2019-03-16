@@ -22,10 +22,13 @@ function buildMetadata(sample) {
 function buildCharts(sample) {
   var sampleUrl = `/samples/${sample}`
   d3.json(sampleUrl).then((data) => {
-    console.log(data);
-    var sample_values = data.sample_values.slice(0,10);
-    var otu_ids = data.otu_ids.slice(0,10)
-    var otu_labels = data.otu_labels.slice(0,10)
+    // var sample_values = data.sample_values.slice(0,10);
+    // var otu_ids = data.otu_ids.slice(0,10)
+    // var otu_labels = data.otu_labels.slice(0,10)
+    var sample_values = data.sample_values;
+    var otu_ids = data.otu_ids;
+    var otu_labels = data.otu_labels;
+
   // Bubble Chart using the sample data
     var trace1 = {
       x: otu_ids,
@@ -37,41 +40,53 @@ function buildCharts(sample) {
         size: sample_values
       }
     };
-    var data = [trace1];
+    var pltdata = [trace1];
     var layout = {
       showlegend: false,
       height: 400,
       width: 1200
     };
     var BUB = document.getElementById("bubble");
-    Plotly.newPlot(BUB, data, layout);
+    Plotly.newPlot(BUB, pltdata, layout);
 
     // Pie Chart
     // HINT: You will need to use slice() to grab the top 10 sample_values,
     // otu_ids, and labels (10 each).
-
-    // Figure out how to sort!
-    // data.sort(function(a, b) {
-    //   return parseFloat(b.sample_values) - parseFloat(a.sample_values);
-    // });
-    // // Slice the first 10 objects for plotting
-    // data = data.slice(0, 10);
-    // // Reverse the array due to Plotly's defaults
-    // data = data.reverse();
-
+    var array = []
+    for (var j = 0; j < otu_ids.length; j++) {
+      array.push({'sample_values': sample_values[j], 'otu_ids': otu_ids[j], 'otu_labels': otu_labels[j]}
+    )};
+   var sorted = array.sort(function(a, b) {
+    // var sorted = data.sort(function(a, b) {
+      return parseFloat(b.sample_values) - parseFloat(a.sample_values);
+    });
+    sorted.sort();
+    // Slice the first 10 objects for plotting
+    sorted = sorted.slice(0, 10);
+    // Reverse the array due to Plotly's defaults
+    sorted = sorted.reverse();
+    console.log(sorted);
+    // var values = [];
+    // var labels = [];
+    // var info = [];
+    // for (var k = 0; k < array.length; k++) {
+    //   labels[k] = array[k].otu_ids;
+    //   info[k] = array[k].otu_labels;
+    //   values[k] = array[k].sample_values;
+    // };
     var trace2 = {
-      values: sample_values,
-      labels: otu_ids,
-      hoverinfo: otu_labels,
+      values: sorted.map(row => row.sample_values),
+      labels: sorted.map(row => row.otu_ids),
+      hoverinfo: sorted.map(row => row.otu_labels),
       type: "pie"
     };
-    var data2 = [trace2];
+    var pltdata2 = [trace2];
     var layout2 = {
       height: 500,
       width: 500
     };
     var PIE = document.getElementById("pie");
-    Plotly.newPlot(PIE, data2, layout2);
+    Plotly.newPlot(PIE, pltdata2, layout2);
   });
 }
 
