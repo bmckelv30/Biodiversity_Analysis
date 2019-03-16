@@ -22,9 +22,6 @@ function buildMetadata(sample) {
 function buildCharts(sample) {
   var sampleUrl = `/samples/${sample}`
   d3.json(sampleUrl).then((data) => {
-    // var sample_values = data.sample_values.slice(0,10);
-    // var otu_ids = data.otu_ids.slice(0,10)
-    // var otu_labels = data.otu_labels.slice(0,10)
     var sample_values = data.sample_values;
     var otu_ids = data.otu_ids;
     var otu_labels = data.otu_labels;
@@ -36,7 +33,8 @@ function buildCharts(sample) {
       mode: 'markers',
       text: otu_labels,
       marker: {
-        color: [otu_ids],
+        color: [otu_ids,],
+        colorscale: 'YIOrRd',
         size: sample_values
       }
     };
@@ -57,7 +55,6 @@ function buildCharts(sample) {
       array.push({'sample_values': sample_values[j], 'otu_ids': otu_ids[j], 'otu_labels': otu_labels[j]}
     )};
    var sorted = array.sort(function(a, b) {
-    // var sorted = data.sort(function(a, b) {
       return parseFloat(b.sample_values) - parseFloat(a.sample_values);
     });
     sorted.sort();
@@ -65,15 +62,7 @@ function buildCharts(sample) {
     sorted = sorted.slice(0, 10);
     // Reverse the array due to Plotly's defaults
     sorted = sorted.reverse();
-    console.log(sorted);
-    // var values = [];
-    // var labels = [];
-    // var info = [];
-    // for (var k = 0; k < array.length; k++) {
-    //   labels[k] = array[k].otu_ids;
-    //   info[k] = array[k].otu_labels;
-    //   values[k] = array[k].sample_values;
-    // };
+
     var trace2 = {
       values: sorted.map(row => row.sample_values),
       labels: sorted.map(row => row.otu_ids),
