@@ -11,8 +11,8 @@ function buildMetadata(sample) {
         Object.entries(sampledata).forEach(([key,value]) => {
           var cell = row.append("tr");
           var display = cell.text(`${key}: ${value}`);
-          //   // BONUS: Build the Gauge Chart
-          //   // buildGauge(data.WFREQ); 
+          // BONUS: Build the Gauge Chart
+          // buildGauge(data.WFREQ);
         }); 
       });
     });
@@ -33,16 +33,21 @@ function buildCharts(sample) {
       mode: 'markers',
       text: otu_labels,
       marker: {
-        color: [otu_ids,],
-        colorscale: 'YIOrRd',
+        color: otu_ids,
+        colorscale: "Earth",
         size: sample_values
       }
     };
     var pltdata = [trace1];
     var layout = {
       showlegend: false,
-      height: 400,
-      width: 1200
+      height: 600,
+      width: 1500,
+      xaxis: {
+        title: {
+          text: 'OTU IDs',
+        }
+      }
     };
     var BUB = document.getElementById("bubble");
     Plotly.newPlot(BUB, pltdata, layout);
@@ -50,11 +55,11 @@ function buildCharts(sample) {
     // Pie Chart
     // HINT: You will need to use slice() to grab the top 10 sample_values,
     // otu_ids, and labels (10 each).
-    var array = []
+    var pieArray = []
     for (var j = 0; j < otu_ids.length; j++) {
-      array.push({'sample_values': sample_values[j], 'otu_ids': otu_ids[j], 'otu_labels': otu_labels[j]}
+      pieArray.push({'sample_values': sample_values[j], 'otu_ids': otu_ids[j], 'otu_labels': otu_labels[j]}
     )};
-   var sorted = array.sort(function(a, b) {
+   var sorted = pieArray.sort(function(a, b) {
       return parseFloat(b.sample_values) - parseFloat(a.sample_values);
     });
     sorted.sort();
@@ -66,7 +71,7 @@ function buildCharts(sample) {
     var trace2 = {
       values: sorted.map(row => row.sample_values),
       labels: sorted.map(row => row.otu_ids),
-      hoverinfo: sorted.map(row => row.otu_labels),
+      hovertext: sorted.map(row => row.otu_labels),
       type: "pie"
     };
     var pltdata2 = [trace2];
